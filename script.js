@@ -150,13 +150,11 @@ function GameController (
         board.markBoard(row, column, getActivePlayer().mark);
 
         if (winGameCheck()) {
-            console.log(`${getActivePlayer().name} wins!`);
-            return;
+            return `${getActivePlayer().name} wins!`;
         }
 
         if (board.drawCheck()) {
-            console.log('Draw!');
-            return;
+            return 'Draw!';
         }
 
         switchPlayerTurn();
@@ -171,8 +169,57 @@ function GameController (
 
     return {
         playRound,
-        getActivePlayer
+        getActivePlayer,
+        getBoard: board.getBoard
     }
 }
 
-const game = GameController();
+function ScreenController() {
+    const game = GameController();
+    const playerTurnDiv = document.querySelector('.turn');
+    const boardDiv = document.querySelector('.board');
+    const warningMsgDiv = document.querySelector('.warning'); 
+    const endMsgDiv = document.querySelector('.end'); 
+
+    const updateScreen = () => {
+        boardDiv.textContent = "";
+
+        const board = game.getBoard();
+        const activePlayer = game.getActivePlayer();
+
+        playerTurnDiv.textContent = `${activePlayer.name}'s turn...`
+
+        function clickButtonHandler(e) {
+            const selectedRow = e.target.dataset.rowIndex;
+            const selectedCol = e.target.dataset.colIndex;
+
+            const result = game.playRound(selectedRow, selectedCol);
+            if (result) {
+                endMsgDiv.textContent = result; 
+            }
+            updateScreen();
+        }
+
+        board.forEach((row, index) => {
+            let rowIndex = index;
+            row.forEach((cell, index) => {
+                const cellButton = document.createElement("button");
+                cellButton.classList.add("cell");
+                cellButton.dataset.rowIndex = rowIndex;
+                cellButton.dataset.colIndex = index;
+                cellButton.textContent = cell.getValue();
+                cellButton.addEventListener("click", clickButtonHandler);
+                boardDiv.appendChild(cellButton); 
+            })
+        });
+    }
+
+    updateScreen(); 
+}
+
+ScreenController();
+
+// Keep players from playing spots already taken
+// Disable all buttons when game is over
+// Clean up interface to allow players to put in their names,
+// Button to start/restart the game
