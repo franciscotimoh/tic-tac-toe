@@ -15,10 +15,11 @@ function GameBoard() {
     const markBoard = (row, column, mark) => {
         if (board[row][column].getValue() !== '-') {
             console.log('Invalid move'); 
-            return;
+            return false;
         }
 
-        board[row][column].markCell(mark); 
+        board[row][column].markCell(mark);
+        return true;
     };
 
     const printBoard = () => {
@@ -147,7 +148,11 @@ function GameController (
 
     const playRound = (row, column) => {
         console.log(`${getActivePlayer().name} plays ${getActivePlayer().mark} on row ${row}, column ${column}`);
-        board.markBoard(row, column, getActivePlayer().mark);
+        const validMove = board.markBoard(row, column, getActivePlayer().mark);
+
+        if (!validMove) {
+            return "Invalid Move. Try again.";
+        }
 
         if (winGameCheck()) {
             return `${getActivePlayer().name} wins!`;
@@ -158,7 +163,8 @@ function GameController (
         }
 
         switchPlayerTurn();
-        printNewRound(); 
+        printNewRound();
+        return '';
     }
 
     const winGameCheck = () => {
@@ -179,7 +185,15 @@ function ScreenController() {
     const playerTurnDiv = document.querySelector('.turn');
     const boardDiv = document.querySelector('.board');
     const warningMsgDiv = document.querySelector('.warning'); 
-    const endMsgDiv = document.querySelector('.end'); 
+    const msgDiv = document.querySelector('.end');
+
+    const disableButtons = () => {
+        const buttons = document.querySelectorAll('.cell');
+        buttons.forEach((button) => {
+            console.log(button);
+            button.disabled = true;
+        })
+    }
 
     const updateScreen = () => {
         boardDiv.textContent = "";
@@ -194,10 +208,13 @@ function ScreenController() {
             const selectedCol = e.target.dataset.colIndex;
 
             const result = game.playRound(selectedRow, selectedCol);
-            if (result) {
-                endMsgDiv.textContent = result; 
-            }
+            msgDiv.textContent = result;
+            
             updateScreen();
+            if (result && result !== "Invalid Move. Try again.") {
+                console.log("Disabling buttons...");
+                disableButtons();
+            }
         }
 
         board.forEach((row, index) => {
@@ -219,7 +236,5 @@ function ScreenController() {
 
 ScreenController();
 
-// Keep players from playing spots already taken
-// Disable all buttons when game is over
 // Clean up interface to allow players to put in their names,
 // Button to start/restart the game
