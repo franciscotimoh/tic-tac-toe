@@ -237,5 +237,3 @@ function ScreenController() {
 }
 
 ScreenController();
-
-// Button to start/restart the game
