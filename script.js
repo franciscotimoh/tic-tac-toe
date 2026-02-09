@@ -117,8 +117,8 @@ function Cell() {
 }
 
 function GameController (
-    playerOne = "Player One",
-    playerTwo = "Player Two"
+    playerOne,
+    playerTwo
 ) {
     const board = GameBoard();
 
@@ -181,16 +181,19 @@ function GameController (
 }
 
 function ScreenController() {
-    const game = GameController();
+    const playerOneName = prompt("Player 1 name (Player One by default): ", "Player One");
+    const playerTwoName = prompt("Player 2 name (Player Two by default): ", "Player Two");
+    const game = GameController(playerOneName, playerTwoName);
+    const restartButton = document.querySelector(".restart");
     const playerTurnDiv = document.querySelector('.turn');
     const boardDiv = document.querySelector('.board');
-    const warningMsgDiv = document.querySelector('.warning'); 
     const msgDiv = document.querySelector('.end');
+
+    restartButton.addEventListener("click", ScreenController);
 
     const disableButtons = () => {
         const buttons = document.querySelectorAll('.cell');
         buttons.forEach((button) => {
-            console.log(button);
             button.disabled = true;
         })
     }
@@ -212,7 +215,6 @@ function ScreenController() {
             
             updateScreen();
             if (result && result !== "Invalid Move. Try again.") {
-                console.log("Disabling buttons...");
                 disableButtons();
             }
         }
@@ -236,5 +238,4 @@ function ScreenController() {
 
 ScreenController();
 
-// Clean up interface to allow players to put in their names,
 // Button to start/restart the game
